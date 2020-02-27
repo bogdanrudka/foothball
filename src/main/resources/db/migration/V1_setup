@@ -1,0 +1,22 @@
+create table PLAYERS (
+    ID int not null,
+    FIRST_NAME varchar(30) not null
+    LAST_NAME varchar(30) not null
+);
+
+create table PAIR (
+    ID int not null,
+    LEFT int not null
+    RIGHT int not null
+);
+
+create TABLE GAME(
+    ID int not null,
+    TEAM_1 int not null,
+    TEAM_2 int not null,
+    SCR_TEAM_1 int,
+    SCR_TEAM_2 int,
+    CREATED_AT timestamp default current_timestamp,
+    UPDATED_AT timestamp
+    PRIMARY KEY (ID)
+)
