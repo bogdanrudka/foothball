@@ -3,19 +3,18 @@ package org.league.foosball.persistence.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity(name = "TEAM")
-@Table(name = "TEAM")
+@Table(name = "TEAMS")
 public class Team {
     @Id
     @GeneratedValue
     private Long id;
-    @ManyToOne
-    private Player left;
-    @ManyToOne
-    private Player right;
+    @OneToMany
+    private List<Player> players;
 }

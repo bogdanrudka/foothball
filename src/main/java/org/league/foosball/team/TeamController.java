@@ -1,9 +1,8 @@
 package org.league.foosball.team;
 
-import org.league.foosball.persistence.entity.Player;
-import org.league.foosball.persistence.entity.Team;
-import org.league.foosball.persistence.repository.TeamRepository;
-import org.league.foosball.persistence.repository.PlayerRepository;
+import org.league.foosball.exception.ResourceNotFountException;
+import org.league.foosball.persistence.entity.*;
+import org.league.foosball.persistence.repository.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/teams")
 public class TeamController {
-
 
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
@@ -23,10 +21,11 @@ public class TeamController {
 
 
     @GetMapping
-    List<Team> getAllByUser(@RequestParam Long playerId){
-        if(playerId!= null){
-            return teamRepository.findDistinctByLeft_IdOrRight_Id(playerId, playerId);
-        }else{
+    List<Team> getAllByUser(@RequestParam(required = false) Long playerId) {
+        if (playerId != null) {
+            return teamRepository.findAllByPlayers(playerRepository.findById(playerId).orElseThrow(
+                    ResourceNotFountException::new));
+        } else {
             return teamRepository.findAll();
         }
     }
@@ -34,11 +33,10 @@ public class TeamController {
     @PostMapping
     public Long saveTeam(@RequestBody CreateTeamDto team) {
         List<Player> players = playerRepository.findAllById(List.of(team.getLeft(), team.getRight()));
-        return teamRepository.save(Team.builder()
-                .left(players.get(0))
-                .right(players.get(1))
-                .build()
-        ).getId();
+        Team build = Team.builder()
+                .players(players)
+                .build();
+        return teamRepository.save(build).getId();
     }
 
 }

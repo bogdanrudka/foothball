@@ -1,11 +1,10 @@
 package org.league.foosball.game;
 
-import org.league.foosball.persistence.entity.Game;
-import org.league.foosball.persistence.entity.Team;
-import org.league.foosball.persistence.repository.GameRepository;
-import org.league.foosball.persistence.repository.TeamRepository;
+import org.league.foosball.persistence.entity.*;
+import org.league.foosball.persistence.repository.*;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,7 +28,8 @@ public class GameController {
     }
 
     @PostMapping
-    public Long recordGame(@RequestBody RecordGameDto record){
+    @Transactional
+    public Long recordGame(@RequestBody RecordGameDto record) {
         List<Team> teams = teamRepository.findAllById(List.of(record.getTeam1(), record.getTeam2()));
 
         if (teams.size() != 2) {
@@ -40,11 +40,18 @@ public class GameController {
                 Collectors.toMap(Team::getId, Function.identity()));
 
         Game game = new Game();
-        game.setScoreTeam1(record.getScoreTeam1());
-        game.setScoreTeam2(record.getScoreTeam2());
+        boolean winTeam1 = record.getScoreTeam1() > record.getScoreTeam2();
+        game.getScores().add(Score.builder()
+                .team(groupedTeams.get(record.getTeam1()))
+                .score(record.getScoreTeam1())
+                .win(winTeam1)
+                .build());
 
-        game.setTeam_1(groupedTeams.get(record.getTeam1()));
-        game.setTeam_2(groupedTeams.get(record.getTeam2()));
+        game.getScores().add(Score.builder()
+                .team(groupedTeams.get(record.getTeam2()))
+                .score(record.getScoreTeam2())
+                .win(!winTeam1)
+                .build());
 
         return gameRepository.save(game).getId();
     }

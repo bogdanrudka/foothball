@@ -8,6 +8,4 @@ import java.util.List;
 import java.util.Set;
 
 public interface GameRepository extends JpaRepository<Game, Long> {
-
-    List<Game> findAllByTeam1_IdInOrTeam2_IdIn(Set<Long> ids1, Set<Long> ids2);
 }

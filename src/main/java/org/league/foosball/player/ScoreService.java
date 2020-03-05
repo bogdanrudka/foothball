@@ -3,10 +3,10 @@ package org.league.foosball.player;
 import org.league.foosball.exception.ResourceNotFountException;
 import org.league.foosball.persistence.entity.*;
 import org.league.foosball.persistence.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -14,23 +14,35 @@ class ScoreService {
 
 
     private PlayerRepository playerRepository;
-    private GameRepository gameRepository;
+    private ScoreRepository scoreRepository;
     private TeamRepository teamRepository;
 
-    public ScoreService(PlayerRepository playerRepository, GameRepository gameRepository, TeamRepository teamRepository) {
+    public ScoreService(PlayerRepository playerRepository, ScoreRepository scoreRepository, TeamRepository teamRepository) {
         this.playerRepository = playerRepository;
-        this.gameRepository = gameRepository;
+        this.scoreRepository = scoreRepository;
         this.teamRepository = teamRepository;
     }
 
-    public ScoreDto calculateScore(Long id) {
-        Player player = playerRepository.findById(id)
+    public ScoreDto calculateScoreByPlayer(Long playerId) {
+        Player player = playerRepository.findById(playerId)
                 .orElseThrow(ResourceNotFountException::new);
-        Set<Long> teams = teamRepository.findDistinctByLeft_IdOrRight_Id(player.getId(), player.getId())
-                .stream()
-                .map(Team::getId)
-                .collect(Collectors.toSet());
-        List<Game> games = gameRepository.findAllByTeam1_IdInOrTeam2_IdIn(teams, teams);
-        return;
+
+        if (player == null) {
+            throw new ResourceNotFountException();
+        }
+
+        List<Team> teams = teamRepository.findAllByPlayers(player);
+        List<Score> scores =
+                scoreRepository.findAllByTeam_IdIn(teams.stream().map(Team::getId).collect(Collectors.toList()));
+
+        Integer totalGoals = Math.toIntExact(scores.stream()
+                .filter(Score::getWin)
+                .map(Score::getScore)
+                .count());
+
+        ScoreDto result = new ScoreDto();
+        result.setWins(totalGoals);
+
+        return result;
     }
 }

@@ -30,8 +30,8 @@ public class PlayerController {
         return playerRepository.save(player).getId();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/scores")
     ScoreDto getScore(@PathVariable Long id) {
-        return scoreService.calculateScore(id);
+        return scoreService.calculateScoreByPlayer(id);
     }
 }

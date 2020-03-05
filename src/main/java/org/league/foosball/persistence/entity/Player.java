@@ -7,8 +7,8 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name ="PLAYER")
-@Table(name = "PLAYER")
+@Entity(name ="PLAYERS")
+@Table(name = "PLAYERS")
 public class Player {
     @Id
     @GeneratedValue
