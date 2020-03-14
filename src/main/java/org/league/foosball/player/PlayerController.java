@@ -5,7 +5,7 @@ import org.league.foosball.persistence.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/players")
@@ -21,7 +21,7 @@ public class PlayerController {
     }
 
     @GetMapping
-    public List<Player> getAllPlayers(){
+    public List<Player> getAllPlayers() {
         return playerRepository.findAll();
     }
 
@@ -30,8 +30,8 @@ public class PlayerController {
         return playerRepository.save(player).getId();
     }
 
-    @GetMapping("/{id}/scores")
-    ScoreDto getScore(@PathVariable Long id) {
-        return scoreService.calculateScoreByPlayer(id);
+    @GetMapping("/scores")
+    List<ScoreDto> getScore(@RequestParam Set<Long> ids) {
+        return scoreService.calculateScoreByPlayer(ids);
     }
 }

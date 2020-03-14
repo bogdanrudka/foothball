@@ -5,12 +5,17 @@ import lombok.*;
 import javax.persistence.criteria.CriteriaBuilder;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ScoreDto {
-    private Integer total;
+    private Long id;
+    private Long playerId;
+    private String firstName;
+    private String lastName;
+    private Long total;
     private Integer totalPlayer;
-    private Integer wins;
-    private Integer loses;
-    private Double score;
+    private Long wins;
+    private Long loses;
+    private Long score;
 }

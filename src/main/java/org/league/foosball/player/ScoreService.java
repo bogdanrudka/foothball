@@ -1,15 +1,14 @@
 package org.league.foosball.player;
 
-import org.league.foosball.exception.ResourceNotFountException;
-import org.league.foosball.persistence.entity.*;
+import lombok.extern.slf4j.Slf4j;
 import org.league.foosball.persistence.repository.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 class ScoreService {
 
 
@@ -23,26 +22,20 @@ class ScoreService {
         this.teamRepository = teamRepository;
     }
 
-    public ScoreDto calculateScoreByPlayer(Long playerId) {
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(ResourceNotFountException::new);
-
-        if (player == null) {
-            throw new ResourceNotFountException();
-        }
-
-        List<Team> teams = teamRepository.findAllByPlayers(player);
-        List<Score> scores =
-                scoreRepository.findAllByTeam_IdIn(teams.stream().map(Team::getId).collect(Collectors.toList()));
-
-        Integer totalGoals = Math.toIntExact(scores.stream()
-                .filter(Score::getWin)
-                .map(Score::getScore)
-                .count());
-
-        ScoreDto result = new ScoreDto();
-        result.setWins(totalGoals);
-
-        return result;
+    public List<ScoreDto> calculateScoreByPlayer(Set<Long> playerId) {
+        log.info("Calculating scored for players {}", playerId);
+        return playerRepository.findScoresByPlayerId(playerId).stream()
+                .map(score -> ScoreDto.builder()
+                        .playerId(score.getId())
+                        .lastName(score.getLastName())
+                        .firstName(score.getFistName())
+                        .loses(score.getLoses())
+                        .total(score.getWins() + score.getLoses())
+                        .wins(score.getWins())
+                        .score(score.getGoals())
+                        .build()
+                )
+                .sorted(Comparator.comparing(ScoreDto::getScore).reversed())
+                .collect(Collectors.toList());
     }
 }
