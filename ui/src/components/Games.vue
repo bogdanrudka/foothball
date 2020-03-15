@@ -3,7 +3,7 @@
         <multiselect v-model="value"
                      :fields="fields"
                      :options="players"
-                     @remove="removeScore"
+                     @remove="fetchScores"
                      @close="fetchScores"
                      :multiple="true"
                      :close-on-select="false"
@@ -53,18 +53,19 @@
             }
         },
         methods: {
-            removeScore(removedOption) {
-                this.scores = this.scores.filter(value => value.id !== removedOption.id)
-            },
             playerToName(player) {
                 return `${player.firstName} ${player.lastName}`
             },
-            fetchScores() {
+            fetchScores(removedOption) {
                 let request = new URLSearchParams();
                 if (this.value.length === 0) {
                     this.players.forEach(p => request.append("players", p.id))
                 } else {
-                    this.value.forEach(p => request.append("players", p.id))
+                    console.log(this.value)
+                    this.value
+                        //FIX The mulitiselect has a bug that emit remove event before removing element form model
+                        .filter(value => value.id !== removedOption.id)
+                        .forEach(p => request.append("players", p.id))
                 }
 
                 axios.get(process.env.VUE_APP_URL + "/games", {params: request})
