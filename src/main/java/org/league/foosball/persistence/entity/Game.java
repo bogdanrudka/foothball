@@ -20,4 +20,5 @@ public class Game {
     private List<Team> teams = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Score> scores = new ArrayList<>();
+    private Boolean played = false;
 }

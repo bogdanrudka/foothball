@@ -11,6 +11,14 @@
                      :preserve-search="true" placeholder="Pick some" label="name"
                      track-by="id" :preselect-first="true">
         </multiselect>
+        <b-form-radio-group
+                id="btn-radios-1"
+                v-model="selectedGateTypes"
+                :options="gameTypes"
+                @input="fetchScores"
+                buttons
+                name="radios-btn-default"
+        ></b-form-radio-group>
         <b-table striped hover :fields="fields" :items="scores"/>
     </div>
 </template>
@@ -34,6 +42,12 @@
                 value: [],
                 scores: [],
                 show: true,
+                selectedGateTypes: "all",
+                gameTypes: [
+                    {text: "All", value: "all"},
+                    {text: "Played", value: true},
+                    {text: "Future", value: false},
+                ],
                 fields: [
                     {key: 't1_goalkeeper', sortable: true},
                     {key: 't1_strikers', sortable: true},
@@ -58,10 +72,12 @@
             },
             fetchScores(removedOption) {
                 let request = new URLSearchParams();
-                if (this.value.length === 0) {
+                if (this.selectedGateTypes !== "all") {
+                    request.append("played", this.selectedGateTypes)
+                }
+                if (this.value.length === 0 || (this.value.length === 1 && removedOption !== null)) {
                     this.players.forEach(p => request.append("players", p.id))
                 } else {
-                    console.log(this.value)
                     this.value
                         //FIX The mulitiselect has a bug that emit remove event before removing element form model
                         .filter(value => value.id !== removedOption.id)
@@ -79,7 +95,6 @@
                         t2_strikers: this.playerToName(g.scores[1].team.players[1]),
                     })))
                     .then(response => this.scores = response)
-                console.log("Fetched: ", this.scores)
             }
         }
     }

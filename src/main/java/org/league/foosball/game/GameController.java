@@ -22,9 +22,13 @@ public class GameController {
     }
 
     @GetMapping
-    public List<Game> getAll(@RequestParam Set<Long> players) {
+    public List<Game> getAll(@RequestParam Set<Long> players, @RequestParam(required = false) Boolean played) {
         if (players.isEmpty()) {
             return gameRepository.findAll();
+        }
+        if (played != null) {
+            return gameRepository.findAllMatchingGamesAndActive(players, played);
+
         } else {
             return gameRepository.findAllMatchingGames(players);
         }
