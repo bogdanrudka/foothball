@@ -1,4 +1,4 @@
-package org.league.foosball.player;
+package org.league.foosball.score;
 
 import lombok.*;
 
@@ -16,6 +16,6 @@ public class ScoreDto {
     private Long total;
     private Integer totalPlayer;
     private Long wins;
-    private Long loses;
     private Long score;
+    private Double pivot;
 }

@@ -1,4 +1,4 @@
-package org.league.foosball.player;
+package org.league.foosball.score;
 
 import lombok.extern.slf4j.Slf4j;
 import org.league.foosball.persistence.repository.*;
@@ -15,24 +15,25 @@ class ScoreService {
     private PlayerRepository playerRepository;
     private ScoreRepository scoreRepository;
     private TeamRepository teamRepository;
+    private GameRepository gameRepository;
 
-    public ScoreService(PlayerRepository playerRepository, ScoreRepository scoreRepository, TeamRepository teamRepository) {
+    public ScoreService(PlayerRepository playerRepository, ScoreRepository scoreRepository, TeamRepository teamRepository, GameRepository gameRepository) {
         this.playerRepository = playerRepository;
         this.scoreRepository = scoreRepository;
         this.teamRepository = teamRepository;
+        this.gameRepository = gameRepository;
     }
 
-    public List<ScoreDto> calculateScoreByPlayer(Set<Long> playerId) {
-        log.info("Calculating scored for players {}", playerId);
-        return playerRepository.findScoresByPlayerId(playerId).stream()
+    public List<ScoreDto> calculateScoreByPlayer() {
+        return scoreRepository.calculateScores().stream()
                 .map(score -> ScoreDto.builder()
                         .playerId(score.getId())
                         .lastName(score.getLastName())
                         .firstName(score.getFistName())
-                        .loses(score.getLoses())
-                        .total(score.getWins() + score.getLoses())
+                        .total(score.getTotal())
                         .wins(score.getWins())
                         .score(score.getGoals())
+                        .pivot((score.getWins() * (100d / score.getTotal())))
                         .build()
                 )
                 .sorted(Comparator.comparing(ScoreDto::getScore).reversed())

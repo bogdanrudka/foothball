@@ -11,5 +11,5 @@ public class ScoreTableProjection {
     private String lastName;
     private Long goals;
     private Long wins;
-    private Long loses;
+    private Long total;
 }

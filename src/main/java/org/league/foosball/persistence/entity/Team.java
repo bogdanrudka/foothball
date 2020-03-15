@@ -13,8 +13,8 @@ import java.util.List;
 @Table(name = "TEAMS")
 public class Team {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
-    @OneToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Player> players;
 }

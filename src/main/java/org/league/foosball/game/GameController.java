@@ -5,8 +5,7 @@ import org.league.foosball.persistence.repository.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,8 +22,12 @@ public class GameController {
     }
 
     @GetMapping
-    public List<Game> getAll() {
-        return gameRepository.findAll();
+    public List<Game> getAll(@RequestParam Set<Long> players) {
+        if (players.isEmpty()) {
+            return gameRepository.findAll();
+        } else {
+            return gameRepository.findAllMatchingGames(players);
+        }
     }
 
     @PostMapping

@@ -12,12 +12,11 @@ import javax.persistence.*;
 @Table(name = "SCORES")
 public class Score {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Team team;
-    @ManyToOne
-    private Game game;
     private Integer score;
     private Boolean win;
+    private Boolean active;
 }
