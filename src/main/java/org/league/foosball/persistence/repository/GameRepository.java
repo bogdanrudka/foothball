@@ -23,7 +23,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
            "SELECT t from TEAM t inner join PLAYERS p on p member of t.players " +
            "where p.id in :ids group by t.id having count(t) = 2" +
            ") group by g.id having count(g) = 2")
-    @Cacheable("findAllMatchingGames")
+//    @Cacheable("findAllMatchingGames")
     List<Game> findAllMatchingGames(@Param("ids") Set<Long> playerIds);
 
     //TODO REALLY sloooooow query
@@ -32,6 +32,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
            "SELECT t from TEAM t inner join PLAYERS p on p member of t.players " +
            "where p.id in :ids group by t.id having count(t) = 2" +
            ") group by g.id having count(g) = 2")
-    @Cacheable("findAllMatchingGames")
+//    @Cacheable("findAllMatchingGames")
     List<Game> findAllMatchingGamesAndActive(@Param("ids") Set<Long> playerIds, @Param("played") Boolean played);
 }

@@ -6,8 +6,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 class RecordGameDto {
-    private Long team1;
-    private Long team2;
+    private Long gameId;
+    private Long idTeam1;
+    private Long idTeam2;
     private Integer scoreTeam1;
     private Integer scoreTeam2;
 }
