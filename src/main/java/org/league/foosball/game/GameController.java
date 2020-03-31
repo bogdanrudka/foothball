@@ -1,11 +1,16 @@
 package org.league.foosball.game;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.league.foosball.exception.ResourceNotFountException;
 import org.league.foosball.persistence.entity.*;
 import org.league.foosball.persistence.repository.GameRepository;
 import org.league.foosball.persistence.repository.TeamRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.persistence.EntityManagerFactory;
 import javax.transaction.Transactional;
@@ -30,15 +35,28 @@ public class GameController {
     }
 
     @GetMapping
-    public List<Game> getAll(@RequestParam Set<Long> players, @RequestParam(required = false) Boolean played) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+            @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query",
+                    value = "Number of records per page."),
+            @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query",
+                    value = "Sorting criteria in the format: property(,asc|desc). " +
+                            "Default sort order is ascending. " +
+                            "Multiple sort criteria are supported.")
+    })
+    public Page<Game> getAll(@RequestParam Set<Long> players, @RequestParam(required = false) Boolean played, @ApiIgnore(
+            "Ignored because swagger ui shows the wrong params, " +
+            "instead they are explained in the implicit params"
+    ) Pageable pageable) {
         if (players.isEmpty()) {
-            return gameRepository.findAll();
+            return gameRepository.findAll(pageable);
         }
         if (played != null) {
-            return gameRepository.findAllMatchingGamesAndActive(players, played);
+            return gameRepository.findAllMatchingGamesAndActive(players, played, pageable);
 
         } else {
-            return gameRepository.findAllMatchingGames(players);
+            return gameRepository.findAllMatchingGames(players, pageable);
         }
     }
 
@@ -59,8 +77,7 @@ public class GameController {
 
         game.setPlayed(true);
 
-        gameRepository.saveAndFlush(game);
-        sessionFactory.getCache().evictAll();
+        gameRepository.save(game);
         return accepted().build();
     }
 

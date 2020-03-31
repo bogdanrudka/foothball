@@ -1,23 +1,24 @@
+<!--suppress ALL -->
 <template>
     <b-container fluid>
 
         <b-row class="text-center">
-            <b-col>
+            <b-col cols="2">
                 <b-form-radio-group
                         id="btn-radios-1"
                         v-model="selectedGateTypes"
                         :options="gameTypes"
-                        @input="fetchScores"
+                        @input="fetchGames"
                         buttons
                         name="radios-btn-default"
                 />
             </b-col>
-            <b-col cols="10">
-                <multiselect v-model="value"
+            <b-col cols="7">
+                <multiselect v-model="selectedPlayers"
                              :fields="fields"
                              :options="players"
-                             @remove="fetchScores"
-                             @close="fetchScores"
+                             @remove="fetchGames"
+                             @close="fetchGames"
                              :multiple="true"
                              :close-on-select="false"
                              :clear-on-select="false"
@@ -25,7 +26,8 @@
                              track-by="id" :preselect-first="true"/>
             </b-col>
         </b-row>
-        <b-table striped hover :fields="fields" :items="scores">
+
+        <b-table striped hover :fields="fields" :fixed="true" :items="scores">
             <template v-slot:cell(status)="row">
                 <b-button variant="danger" size="sm"
                           @click="recordModal(row.item, $event.target)"
@@ -34,6 +36,14 @@
                 </b-button>
             </template>
         </b-table>
+        <b-pagination
+                v-model="pagination.page"
+                :total-rows="pagination.totalSize"
+                :per-page="pagination.size"
+                aria-controls="my-table"
+                align="fill"
+                @change="fetchGames"
+        />
         <!-- Info modal -->
         <b-modal size="lg" :id="recordGameModal.id"
                  @hidden="resetModal"
@@ -93,9 +103,15 @@
                 },
                 scoreOptions: [0, 1, 2, 3, 4, 5],
                 players: [],
-                value: [],
+                selectedPlayers: [],
                 scores: [],
                 show: true,
+                pagination: {
+                    totalSize: 0,
+                    page: 0,
+                    size: 10,
+                    totalPages: 0,
+                },
                 selectedGateTypes: false,
                 gameTypes: [
                     {text: "Future", value: false},
@@ -124,7 +140,7 @@
                 axios.get(process.env.VUE_APP_URL + "/players")
                     .then(response => response.data.map(p => ({id: p.id, name: `${p.firstName} ${p.lastName}`})))
                     .then(response => this.players = response)
-                    .then(() => this.fetchScores())
+                    .then(() => this.fetchGames())
             }
         },
         methods: {
@@ -156,37 +172,53 @@
                 axios.put(process.env.VUE_APP_URL + `/games/${content.id}`, request)
                     .then(() => {
                         this.$root.$emit('bv::hide::modal', this.recordGameModal.id)
-                        this.fetchScores({id: ""})
+                        this.fetchGames({id: ""})
                     })
             },
-            fetchScores(removedOption) {
+            mapToGame: function (g) {
+                return {
+                    id: g.id,
+                    t1_id: g.teams[0].id,
+                    t1_goalkeeper: this.playerToName(g.scores[0].team.players[0]),
+                    t1_strikers: this.playerToName(g.scores[0].team.players[1]),
+                    t1_score: Math.max(0, g.scores[0].score),
+                    status: g.played,
+                    t2_id: g.teams[1].id,
+                    t2_score: Math.max(0, g.scores[1].score),
+                    t2_goalkeeper: this.playerToName(g.scores[1].team.players[0]),
+                    t2_strikers: this.playerToName(g.scores[1].team.players[1])
+
+                }
+            },
+            fetchGames(removedOption) {
                 let request = new URLSearchParams();
                 if (this.selectedGateTypes !== "all") {
                     request.append("played", this.selectedGateTypes)
                 }
-                if (this.value.length === 0 || (this.value.length === 1 && removedOption !== null)) {
+                if (this.selectedPlayers.length === 0 || (this.selectedPlayers.length === 1 && removedOption !== null)) {
                     this.players.forEach(p => request.append("players", p.id))
                 } else {
-                    this.value
+                    this.selectedPlayers
                         //FIX The mulitiselect has a bug that emit remove event before removing element form model
                         .filter(value => value.id !== removedOption.id)
                         .forEach(p => request.append("players", p.id))
                 }
 
-                axios.get(process.env.VUE_APP_URL + "/games", {params: request})
-                    .then(response => response.data.map(g => ({
-                        id: g.id,
-                        t1_id: g.teams[0].id,
-                        t1_goalkeeper: this.playerToName(g.scores[0].team.players[0]),
-                        t1_strikers: this.playerToName(g.scores[0].team.players[1]),
-                        t1_score: Math.max(0, g.scores[0].score),
-                        status: g.played,
-                        t2_id: g.teams[1].id,
-                        t2_score: Math.max(0, g.scores[1].score),
-                        t2_goalkeeper: this.playerToName(g.scores[1].team.players[0]),
-                        t2_strikers: this.playerToName(g.scores[1].team.players[1])
+                request.append("page", removedOption - 1)
+                request.append("size", this.pagination.size)
 
-                    })))
+                axios.get(process.env.VUE_APP_URL + "/games", {params: request})
+                    .then(response => {
+
+                        this.pagination.totalPages = response.data.totalPages - 1;
+                        this.pagination.totalSize = response.data.totalElements;
+                        console.log(response)
+
+                        return response.data.content.map(game => {
+
+                            return this.mapToGame(game)
+                        })
+                    })
                     .then(response => this.scores = response)
             }
         }
