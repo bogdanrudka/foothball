@@ -27,7 +27,8 @@
             </b-col>
         </b-row>
 
-        <b-table striped hover :fields="fields" :fixed="true" :items="scores">
+        <b-table striped hover :fields="fields" :fixed="true" :items="scores" :current-page="pagination.page"
+                 :per-page="0">
             <template v-slot:cell(status)="row">
                 <b-button variant="danger" size="sm"
                           @click="recordModal(row.item, $event.target)"
@@ -36,14 +37,14 @@
                 </b-button>
             </template>
         </b-table>
-        <b-pagination
-                v-model="pagination.page"
-                :total-rows="pagination.totalSize"
-                :per-page="pagination.size"
-                aria-controls="my-table"
-                align="fill"
-                @change="fetchGames"
-        />
+
+        <v-page align="left"
+                :page-size-menu="pagination.pageNumbers"
+                language="en"
+                :total-row="pagination.totalSize"
+                @page-change="pageChange"></v-page>
+
+
         <!-- Info modal -->
         <b-modal size="lg" :id="recordGameModal.id"
                  @hidden="resetModal"
@@ -83,6 +84,7 @@
                 </b-button>
             </template>
         </b-modal>
+
     </b-container>
 </template>
 
@@ -109,8 +111,9 @@
                 pagination: {
                     totalSize: 0,
                     page: 0,
-                    size: 10,
+                    size: 5,
                     totalPages: 0,
+                    pageNumbers: [10, 20, 50, 100]
                 },
                 selectedGateTypes: false,
                 gameTypes: [
@@ -144,6 +147,9 @@
             }
         },
         methods: {
+            updatePages() {
+
+            },
             resetModal() {
                 console.log("reset modal")
                 this.recordGameModal.t1_score = 0;
@@ -156,6 +162,12 @@
             },
             playerToName(player) {
                 return `${player.firstName} ${player.lastName}`
+            },
+            pageChange(page) {
+                console.log(page)
+                this.pagination.size = page.pageSize
+                this.pagination.page = page.pageNumber - 1
+                this.fetchGames()
             },
             recordGame(bvModalEvt) {
                 let content = this.recordGameModal.content;
@@ -204,7 +216,7 @@
                         .forEach(p => request.append("players", p.id))
                 }
 
-                request.append("page", removedOption - 1)
+                request.append("page", this.pagination.page)
                 request.append("size", this.pagination.size)
 
                 axios.get(process.env.VUE_APP_URL + "/games", {params: request})
@@ -215,7 +227,6 @@
                         console.log(response)
 
                         return response.data.content.map(game => {
-
                             return this.mapToGame(game)
                         })
                     })
