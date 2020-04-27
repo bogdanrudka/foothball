@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "SCORES")
 public class Score {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private Team team;

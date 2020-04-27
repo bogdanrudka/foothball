@@ -1,0 +1,11 @@
+{
+  "image": "heroku/gradle",
+  "name": "Foothball API",
+  "description": "The application is and API for Foothball league application.",
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ],
+  "env": {
+    "CORS_APP_URL": ""
+  }
+}

@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "GAMES")
 public class Game {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Team> teams = new ArrayList<>();

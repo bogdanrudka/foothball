@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "TEAMS")
 public class Team {
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Player> players;
