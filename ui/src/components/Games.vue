@@ -10,6 +10,7 @@
                         :options="gameTypes"
                         @input="fetchGames"
                         buttons
+                        button-variant="outline-primary"
                         name="radios-btn-default"
                 />
             </b-col>
@@ -27,13 +28,15 @@
             </b-col>
         </b-row>
 
-        <b-table striped hover :fields="fields" :fixed="true" :items="scores" :current-page="pagination.page"
-                 :per-page="0">
+        <b-table striped hover bordered :fields="fields" :fixed="true" :items="scores"
+                 :current-page="pagination.page" :per-page="0">
             <template v-slot:cell(status)="row">
-                <b-button variant="danger" size="sm"
+                <b-button variant="info" size="sm" disabled="row.item.played"
                           @click="recordModal(row.item, $event.target)"
-                          :hidden="row.item.status" class="mr-1">
-                    Record
+                          class="record-botton mr-1">
+                    <div class="score-indicator .nopadding">
+                        {{row.item.t1_score}}:{{row.item.t2_score}}
+                    </div>
                 </b-button>
             </template>
         </b-table>
@@ -113,7 +116,7 @@
                     page: 0,
                     size: 5,
                     totalPages: 0,
-                    pageNumbers: [10, 20, 50, 100]
+                    pageNumbers: [15, 20, 50, 100]
                 },
                 selectedGateTypes: false,
                 gameTypes: [
@@ -124,9 +127,7 @@
                 fields: [
                     {key: 't1_goalkeeper', sortable: true},
                     {key: 't1_strikers', sortable: true},
-                    {key: 't1_score', sortable: true},
-                    {key: 'status', sortable: true, label: "Status"},
-                    {key: 't2_score', sortable: true},
+                    {key: 'status', sortable: false, label: "Score", class:"nopadding"},
                     {key: 't2_goalkeeper', sortable: true},
                     {key: 't2_strikers', sortable: true},
                 ],
@@ -151,12 +152,10 @@
 
             },
             resetModal() {
-                console.log("reset modal")
                 this.recordGameModal.t1_score = 0;
                 this.recordGameModal.t2_score = 0;
             },
             recordModal(item, button) {
-                console.log("Emitting info")
                 this.recordGameModal.content = item
                 this.$root.$emit('bv::show::modal', this.recordGameModal.id, button)
             },
@@ -164,7 +163,6 @@
                 return `${player.firstName} ${player.lastName}`
             },
             pageChange(page) {
-                console.log(page)
                 this.pagination.size = page.pageSize
                 this.pagination.page = page.pageNumber - 1
                 this.fetchGames()
@@ -179,7 +177,6 @@
                     scoreTeam2: content.t2_score,
                 };
 
-                console.log(request);
                 bvModalEvt.preventDefault()
                 axios.put(process.env.VUE_APP_URL + `/games/${content.id}`, request)
                     .then(() => {
@@ -199,7 +196,6 @@
                     t2_score: Math.max(0, g.scores[1].score),
                     t2_goalkeeper: this.playerToName(g.scores[1].team.players[0]),
                     t2_strikers: this.playerToName(g.scores[1].team.players[1])
-
                 }
             },
             fetchGames(removedOption) {
@@ -224,7 +220,6 @@
 
                         this.pagination.totalPages = response.data.totalPages - 1;
                         this.pagination.totalSize = response.data.totalElements;
-                        console.log(response)
 
                         return response.data.content.map(game => {
                             return this.mapToGame(game)
@@ -237,8 +232,31 @@
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
+    .b-table {
+        margin-bottom: 0px;
+    }
+
+    .nopadding {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
     .team1 {
         text-align: right;
+    }
+
+    .btn-info {
+        color: black;
+    }
+
+    .record-botton {
+        border-radius: 0;
+        outline: none;
+        border: 0;
+        box-shadow: none;
+        background-color: transparent;
+        height: 100%;
+        width: 100%;
     }
 
     .score-container {
@@ -258,6 +276,17 @@
         -webkit-appearance: none;
         appearance: none;
         text-align-last: center;
+    }
+
+    .multiselect {
+        min-height: 38px;
+        height: 38px;
+    }
+
+    .multiselect__tags {
+        padding-top: 6px;
+        min-height: 38px;
+        height: 100%;
     }
 
     .container-fluid {
