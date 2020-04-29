@@ -3,7 +3,7 @@
   "name": "Foothball API",
   "description": "The application is and API for Foothball league application.",
   "addons": [
-    "heroku-postgresql:hobby-dev"
+    "heroku-postgresql"
   ],
   "env": {
     "CORS_APP_URL": ""
