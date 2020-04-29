@@ -25,25 +25,4 @@ public class FoosballApplication {
         SpringApplication.run(FoosballApplication.class, args);
     }
 
-
-    // Fix the CORS errors
-    @Bean
-    public FilterRegistrationBean simpleCorsFilter(@Value("${cors.ui.url}") String appUrl) {
-
-        log.info("Configuring CORS support for the frontend app under url: {}", appUrl);
-
-        var source = new UrlBasedCorsConfigurationSource();
-        var config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-
-        // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(Collections.singletonList(appUrl));
-        config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        source.registerCorsConfiguration("/**", config);
-
-        var bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean;
-    }
 }
