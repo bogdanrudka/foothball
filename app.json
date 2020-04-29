@@ -4,8 +4,5 @@
   "description": "The application is and API for Foothball league application.",
   "addons": [
     "heroku-postgresql"
-  ],
-  "env": {
-    "CORS_APP_URL": ""
-  }
+  ]
 }
