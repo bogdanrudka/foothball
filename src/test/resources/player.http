@@ -1,0 +1,39 @@
+
+GET {{host}}/players
+Accept: application/json
+
+###
+POST {{host}}/players
+Content-Type: application/json
+
+{"firstName": "Oksana",
+"lastName":  "Kaminetska"}
+
+###TEAM
+POST {{host}}/teams
+Content-Type: application/json
+
+{"left": 2,
+  "right":  9}
+
+###
+GET {{host}}/teams
+###
+
+GET {{host}}/teams?playerId=9
+
+###GAMES
+GET {{host}}/games
+
+###
+POST {{host}}/games
+Content-Type: application/json
+
+{
+  "team1": 3,
+  "team2": 1,
+  "scoreTeam1": 2,
+  "scoreTeam2":4
+}
+
+###
