@@ -71,7 +71,7 @@
 
                 console.log(request);
                 bvModalEvt.preventDefault()
-                axios.put(process.env.VUE_APP_URL + `/games/${content.id}`, request)
+                axios.put(`/games/${content.id}`, request)
                     .then(() => {
                         this.$root.$emit('bv::hide::modal', this.recordGameModal.id)
                     })

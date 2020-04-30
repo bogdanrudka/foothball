@@ -141,7 +141,7 @@
         },
         mounted() {
             if (this.players.length === 0 || this.scores.length === 0) {
-                axios.get(process.env.VUE_APP_URL + "/players")
+                axios.get("/players")
                     .then(response => response.data.map(p => ({id: p.id, name: `${p.firstName} ${p.lastName}`})))
                     .then(response => this.players = response)
                     .then(() => this.fetchGames())
@@ -178,7 +178,7 @@
                 };
 
                 bvModalEvt.preventDefault()
-                axios.put(process.env.VUE_APP_URL + `/games/${content.id}`, request)
+                axios.put(`/games/${content.id}`, request)
                     .then(() => {
                         this.$root.$emit('bv::hide::modal', this.recordGameModal.id)
                         this.fetchGames({id: ""})
@@ -215,7 +215,7 @@
                 request.append("page", this.pagination.page)
                 request.append("size", this.pagination.size)
 
-                axios.get(process.env.VUE_APP_URL + "/games", {params: request})
+                axios.get("/games", {params: request})
                     .then(response => {
 
                         this.pagination.totalPages = response.data.totalPages - 1;

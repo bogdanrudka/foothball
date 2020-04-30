@@ -29,12 +29,12 @@
         },
         methods: {
             fetchPlayers() {
-                axios.get(process.env.VUE_APP_URL + "/players")
+                axios.get("/players")
                     .then(response => (this.players = response.data))
             },
             onSubmit(evt) {
                 evt.preventDefault();
-                axios.post(process.env.VUE_APP_URL + "/players",
+                axios.post("/players",
                     {
                         firstName: this.form.firstName,
                         lastName: this.form.lastName

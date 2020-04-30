@@ -46,7 +46,7 @@
         },
         methods: {
             fetchScores() {
-                axios.get(process.env.VUE_APP_URL + "/scores")
+                axios.get("/scores")
                     .then(response => response.data.map(p => ({
                         id: p.playerId,
                         name: `${p.firstName} ${p.lastName}`,
