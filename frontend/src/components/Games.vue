@@ -31,7 +31,7 @@
         <b-table striped hover bordered :fields="fields" :fixed="true" :items="scores"
                  :current-page="pagination.page" :per-page="0">
             <template v-slot:cell(status)="row">
-                <b-button variant="info" size="sm" disabled="row.item.played"
+                <b-button variant="info" size="sm" :disabled="row.item.played"
                           @click="recordModal(row.item, $event.target)"
                           class="record-botton mr-1">
                     <div class="score-indicator .nopadding">
@@ -191,7 +191,7 @@
                     t1_goalkeeper: this.playerToName(g.scores[0].team.players[0]),
                     t1_strikers: this.playerToName(g.scores[0].team.players[1]),
                     t1_score: Math.max(0, g.scores[0].score),
-                    status: g.played,
+                    played: g.played,
                     t2_id: g.teams[1].id,
                     t2_score: Math.max(0, g.scores[1].score),
                     t2_goalkeeper: this.playerToName(g.scores[1].team.players[0]),
