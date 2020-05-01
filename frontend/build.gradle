@@ -9,7 +9,6 @@ node {
 }
 
 npm_run_build {
-    // make sure the build task is executed only when appropriate files change
     inputs.files fileTree('public')
     inputs.files fileTree('src')
 
@@ -19,12 +18,13 @@ npm_run_build {
     outputs.dir 'build'
 }
 
-task packageNpmApp(type: Zip) {
+
+task packageApp(type: Zip) {
     dependsOn npm_run_build
-    baseName 'npm-app'
-    extension 'jar'
-    destinationDir file("${projectDir}/build_packageNpmApp")
-    from('build') {
+    archiveBaseName = 'frontend'
+    archiveExtension = 'jar'
+    destinationDirectory = file("${projectDir}/build/libs")
+    from('dist/') {
         into 'static'
     }
 }
@@ -36,37 +36,14 @@ configurations {
 configurations.default.extendsFrom(configurations.npmResources)
 
 artifacts {
-    npmResources(packageNpmApp.archivePath) {
-        builtBy packageNpmApp
+    npmResources(packageApp.archiveFile) {
+        builtBy packageApp
         type 'jar'
     }
 }
 
-assemble.dependsOn packageNpmApp
-
-String testsExecutedMarkerName = "${projectDir}/.tests.executed"
-
-task test(type: NpmTask) {
-    dependsOn assemble
-
-    environment CI: 'true'
-
-    args = ['run', 'test']
-
-    inputs.files fileTree('src')
-    inputs.file 'package.json'
-    inputs.file 'package-lock.json'
-
-    // allows easy triggering re-tests
-    doLast {
-        new File(testsExecutedMarkerName).text = 'delete this file to force re-execution JavaScript tests'
-    }
-    outputs.file testsExecutedMarkerName
+configurations {
+    npmResources
 }
 
-check.dependsOn test
-
-clean {
-    delete packageNpmApp.archivePath
-    delete testsExecutedMarkerName
-}
+assemble.dependsOn packageApp
