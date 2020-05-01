@@ -1,1 +1,1 @@
-web: java -jar build/libs/foosball-*.jar
+web: java -jar backend/build/libs/backend-*.jar
